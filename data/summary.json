@@ -1,0 +1,12 @@
+{
+    "total_spent": 15346.0,
+    "category_total": {
+        "Food": 2480.0,
+        "Traval": 2320.0,
+        "Shopping": 4199.0,
+        "Bills": 3608.0,
+        "Other": 1299.0,
+        "Health": 1440.0
+    },
+    "is_over_budget": true
+}

@@ -1,0 +1,4 @@
+2026-09-09 21:58:54,046 - INFO - initializing Phonepe Expense Tracker....
+2026-09-09 21:58:54,047 - ERROR - Skipped  8 transaction due to error: not enough values to unpack (expected 3, got 2)
+2026-09-09 21:58:54,048 - INFO - Execution of parse_tranasaction took 0.00104160001501441 seconds.
+2026-09-09 21:58:54,049 - INFO - Data written to data\summary.json
