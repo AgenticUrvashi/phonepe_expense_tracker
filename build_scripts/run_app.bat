@@ -6,11 +6,11 @@ echo ===================================================
 echo Starting Application...
 
 if exist .venv312\Scripts\python.exe (
-    .venv312\Scripts\python.exe backend\app.py
+    .venv312\Scripts\python.exe main.py
 ) else if exist .venv\Scripts\python.exe (
-    .venv\Scripts\python.exe backend\app.py
+    .venv\Scripts\python.exe main.py
 ) else (
-    python backend\app.py
+    python main.py
 )
 
 pause
