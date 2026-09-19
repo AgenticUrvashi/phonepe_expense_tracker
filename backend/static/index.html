@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhonePe Expense Tracker</title>
+  
+  <!-- Styling -->
+  <link rel="icon" type="image/png" href="assets/phonepe-logo.png">
+  <link rel="stylesheet" href="css/styles.css">
+  
+
+  <style>
+    /* In-page layout utility overrides */
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 0.9fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 1100px) {
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notification-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e2133;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border-left: 4px solid #5f259f;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .notification-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .notification-toast.success { border-left-color: #10b981; }
+    .notification-toast.error { border-left-color: #ef4444; }
+    .notification-toast.info { border-left-color: #8b5cf6; }
+
+    /* Custom range slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: #24273d;
+      height: 6px;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.8);
+      transition: transform 0.1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Application Header -->
+  <header class="app-header">
+    <div class="brand-badge">
+      <div class="brand-logo">
+        <img src="assets/phonepe-logo.png" alt="PhonePe Logo"
+             style="width: 100%; height: 100%; object-fit: contain; display: block;">
+      </div>
+      <div>
+        <h1 style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: #fff;">
+          PhonePe <span style="color: #a855f7;">Expense Tracker</span>
+        </h1>
+        <p style="font-size: 11px; color: #94a3b8; margin: 0;">FinTech Analytics &amp; Budget Monitor • <span style="color: #c084fc; font-weight: 600;">Indian AI Production</span></p>
+      </div>
+    </div>
+
+    <!-- Active File Badge & Header Actions -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="background: #181a28; border: 1px solid #24273d; padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+        <span id="activeFileBadge">transactions.txt</span>
+      </div>
+
+      <button id="btnAbout" class="btn-secondary" style="padding: 7px 12px; font-size: 12px;" onclick="openAboutModal()" title="About PhonePe Expense Tracker & Indian AI Production">
+        ℹ️ About
+      </button>
+
+      <button id="btnLoadSample" class="btn-secondary" style="padding: 7px 14px; font-size: 12px;">
+        🔄 Reload Sample
+      </button>
+
+      <button id="btnBrowseFile" class="btn-primary" style="padding: 7px 14px; font-size: 12px;">
+        📁 Open File
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <main class="dashboard-container">
+
+    <!-- Upload Dropzone Hero -->
+    <section id="dropzone" class="dropzone-container">
+      <input type="file" id="fileInput" accept=".txt,.csv" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(124, 58, 237, 0.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          📊
+        </div>
+        <div style="text-align: left;">
+          <h2 style="font-size: 15px; font-weight: 600; color: #f8fafc; margin: 0 0 2px 0;">
+            Drag & Drop your <code style="color: #c084fc; background: #1c1e2e; padding: 2px 6px; border-radius: 4px;">transactions.txt</code> here
+          </h2>
+          <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+            Supports comma-separated lines: <span class="font-mono" style="color: #64748b;">YYYY-MM-DD, Merchant Name, Amount</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI Metric Cards Grid — 4-Card Premium Layout -->
+    <section class="kpi-grid">
+
+      <!-- Card 1: Total Money Spent -->
+      <div class="glass-panel kpi-card" style="--card-accent: linear-gradient(90deg, #7c3aed, #a855f7);">
+        <div class="kpi-card__header">
+          <span class="kpi-card__label">Total Spent</span>
+          <div class="kpi-card__icon" style="background: rgba(124,58,237,0.15);">💸</div>
+        </div>
+        <div>
+          <div id="kpiTotalSpent" class="kpi-card__value font-mono">₹0.00</div>
+          <div class="kpi-card__sub">
+            <span id="kpiTxnCount">0 transactions</span>
+            &nbsp;·&nbsp;Avg: <strong id="kpiAvgSpend">₹0.00</strong>
+          </div>
+        </div>
+        <div class="kpi-progress-bar">
+          <div id="kpiBudgetUsedBar" class="kpi-progress-bar__fill" style="width: 0%; background: linear-gradient(90deg, #7c3aed, #a855f7);"></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Monthly Budget -->
+      <div class="glass-panel kpi-card" style="--card-accent: linear-gradient(90deg, #0891b2, #06b6d4);">
+        <div class="kpi-card__header">
+          <span class="kpi-card__label">Monthly Budget</span>
+          <div class="kpi-card__icon" style="background: rgba(6,182,212,0.12);">🎯</div>
+        </div>
+        <div>
+          <div id="kpiBudgetLimit" class="kpi-card__value font-mono" style="color: #22d3ee;">₹10,000.00</div>
+          <div class="kpi-card__sub" style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span style="color: #94a3b8; font-size: 11px;">₹</span>
+            <input type="number" id="budgetInput" value="10000" step="500" min="500" max="100000"
+              style="width: 80px; background: #1c1e2e; border: 1px solid #2e3148; color: #fff; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace; outline: none;">
+            <span id="kpiBudgetRemaining" class="kpi-trend neutral">₹0 left</span>
+          </div>
+        </div>
+        <div style="margin-top: 4px;">
+          <input type="range" id="budgetSlider" min="1000" max="50000" step="500" value="10000">
+        </div>
+      </div>
+
+      <!-- Card 3: Highest Single Spend -->
+      <div class="glass-panel kpi-card" style="--card-accent: linear-gradient(90deg, #d97706, #f59e0b);">
+        <div class="kpi-card__header">
+          <span class="kpi-card__label">Highest Spend</span>
+          <div class="kpi-card__icon" style="background: rgba(245,158,11,0.12);">🏆</div>
+        </div>
+        <div>
+          <div id="kpiHighestSpend" class="kpi-card__value font-mono" style="color: #fbbf24;">₹0.00</div>
+          <div class="kpi-card__sub">
+            <strong id="kpiHighestMerchant">—</strong>
+            &nbsp;·&nbsp;<span id="kpiHighestDate">—</span>
+          </div>
+        </div>
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-bar__fill" style="width: 100%; background: linear-gradient(90deg, #d97706, #f59e0b);"></div>
+        </div>
+      </div>
+
+      <!-- Card 4: Budget Health / Top Category -->
+      <div id="kpiStatusCard" class="glass-panel kpi-card" style="--card-accent: linear-gradient(90deg, #10b981, #34d399);">
+        <div class="kpi-card__header">
+          <span class="kpi-card__label">Budget Health</span>
+          <div id="kpiStatusIcon" class="kpi-card__icon" style="background: rgba(16,185,129,0.12);">✅</div>
+        </div>
+        <div>
+          <div id="kpiBudgetHealth" class="kpi-card__value" style="font-size: 16px; color: #34d399;">Checking...</div>
+          <div class="kpi-card__sub">
+            Top: <strong id="kpiTopCategory" style="color: #f472b6;">None</strong>
+            &nbsp;·&nbsp;<span id="kpiTopCategoryAmt" style="color: #94a3b8;">₹0</span>
+          </div>
+        </div>
+        <div class="kpi-progress-bar">
+          <div id="kpiBudgetHealthBar" class="kpi-progress-bar__fill" style="width: 0%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Visual Analytics Charts Row -->
+    <section class="analytics-grid">
+      <!-- Donut Chart: Category Breakdown -->
+      <div class="glass-panel chart-card">
+        <h3><span>🍩</span> Category Breakdown</h3>
+        <div id="chartCategoryDonut" style="min-height: 280px;"></div>
+      </div>
+
+      <!-- Area Chart: Daily Spending Timeline -->
+      <div class="glass-panel chart-card">
+        <h3><span>📈</span> Spending Trend Timeline</h3>
+        <div id="chartSpendTrend" style="min-height: 280px;"></div>
+      </div>
+
+      <!-- Radial Gauge: Budget Consumption -->
+      <div class="glass-panel chart-card">
+        <h3><span>🎯</span> Budget Utilization</h3>
+        <div id="chartBudgetGauge" style="min-height: 280px;"></div>
+      </div>
+    </section>
+
+    <!-- Skipped / Malformed Lines Drawer (Shows when errors exist) -->
+    <section id="errorDrawerSection" style="display: none; margin-bottom: 20px;">
+      <div class="glass-panel" style="border-color: rgba(239, 68, 68, 0.4); padding: 18px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">⚠️</span>
+            <h3 style="font-size: 14px; color: #f87171; margin: 0; font-weight: 600;">Data Quality Alert</h3>
+            <span id="errorCountBadge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+              0 skipped lines
+            </span>
+          </div>
+        </div>
+        <div id="errorList" style="max-height: 140px; overflow-y: auto;"></div>
+      </div>
+    </section>
+
+    <!-- Interactive Transactions Table & Ledger -->
+    <section class="glass-panel" style="padding: 24px; margin-bottom: 30px;">
+      <!-- Table Header Bar -->
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <h2 style="font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">
+            Transaction Ledger
+          </h2>
+          <p id="tableCountLabel" style="font-size: 12px; color: #94a3b8; margin: 0;">
+            Loading records...
+          </p>
+        </div>
+
+        <!-- Search Bar & Export Actions -->
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div style="position: relative;">
+            <input type="text" id="tableSearch" placeholder="🔍 Search merchant / date..." style="background: #181a28; border: 1px solid #24273d; color: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; width: 220px; outline: none;">
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <button onclick="triggerExport('csv')" class="btn-secondary" style="padding: 7px 12px; font-size: 12px;">
+              📄 CSV
+            </button>
+            <button onclick="triggerExport('json')" class="btn-secondary" style="padding: 7px 12px; font-size: 12px;">
+              📦 JSON
+            </button>
+            <button onclick="triggerExport('html')" class="btn-secondary" style="padding: 7px 12px; font-size: 12px;">
+              🖨️ Report
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div id="categoryChipsContainer" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">#</th>
+              <th onclick="sortTable('date')" style="cursor: pointer;">Date ⬍</th>
+              <th onclick="sortTable('merchant')" style="cursor: pointer;">Merchant ⬍</th>
+              <th onclick="sortTable('category')" style="cursor: pointer;">Category ⬍</th>
+              <th onclick="sortTable('amount')" style="cursor: pointer; text-align: right;">Amount (INR) ⬍</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTableBody">
+            <!-- Injected via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 18px;">
+        <div id="paginationControls" style="display: flex; align-items: center; gap: 10px;">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-brand">
+          <span class="footer-badge">AI Powered</span>
+          <span class="footer-built-by">App built by <strong>Indian AI Production</strong></span>
+        </div>
+        <p class="footer-copyright">
+          &copy; <span id="currentYear">2026</span> Indian AI Production. All rights reserved.
+        </p>
+      </div>
+      <div class="footer-right">
+        <div class="footer-tags">
+          <span class="footer-tag">PhonePe Analytics v1.0</span>
+          <span class="footer-tag">🔒 100% Local &amp; Private</span>
+          <span class="footer-tag">⚡ Indian AI Production</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- About Modal Dialog -->
+  <div id="aboutModal" class="modal-backdrop" style="display: none;" onclick="closeAboutModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="brand-logo" style="width: 48px; height: 48px;">
+            <img src="assets/phonepe-logo.png" alt="PhonePe Logo">
+          </div>
+          <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: #fff; margin: 0;">PhonePe Expense Tracker</h2>
+            <span style="font-size: 12px; color: #a855f7; font-weight: 600;">Indian AI Production</span>
+          </div>
+        </div>
+        <button onclick="closeAboutModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
+      </div>
+      
+      <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px;">
+        A high-performance FinTech analytics dashboard engineered to parse raw PhonePe transaction exports, intelligently categorize expenditures, provide real-time budget guardrails, and generate executive financial reports.
+      </p>
+
+      <div style="background: rgba(24, 26, 40, 0.8); border: 1px solid #24273d; border-radius: 10px; padding: 14px; margin-bottom: 16px; font-size: 12px; color: #94a3b8;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Company / Creator:</span>
+          <strong style="color: #c084fc;">Indian AI Production</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Core Technology:</span>
+          <span style="color: #cbd5e1;">Python, Webview, Fast Parser &amp; Glassmorphic UI</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Version:</span>
+          <span style="color: #10b981; font-weight: 600;">1.0.0 (Production Release)</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Copyright:</span>
+          <span style="color: #cbd5e1;">&copy; 2026 Indian AI Production</span>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #24273d;">
+        <span style="font-size: 11px; color: #64748b;">All Rights Reserved &bull; Indian AI Production</span>
+        <button onclick="closeAboutModal()" class="btn-primary" style="padding: 6px 14px; font-size: 12px;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="notificationToast" class="notification-toast">Notification Message</div>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>

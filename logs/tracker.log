@@ -2,3 +2,15 @@
 2026-09-09 21:58:54,047 - ERROR - Skipped  8 transaction due to error: not enough values to unpack (expected 3, got 2)
 2026-09-09 21:58:54,048 - INFO - Execution of parse_tranasaction took 0.00104160001501441 seconds.
 2026-09-09 21:58:54,049 - INFO - Data written to data\summary.json
+2026-09-10 17:18:36,502 - INFO - initializing Phonepe Expense Tracker....
+2026-09-10 17:18:36,503 - ERROR - Skipped  8 transaction due to error: not enough values to unpack (expected 3, got 2)
+2026-09-10 17:18:36,504 - INFO - Execution of parse_tranasaction took 0.0011563999578356743 seconds.
+2026-09-10 17:18:36,507 - INFO - Data written to data\summary.json
+2026-09-10 18:30:29,920 - INFO - initializing Phonepe Expense Tracker....
+2026-09-10 18:30:29,923 - ERROR - Skipped  8 transaction due to error: not enough values to unpack (expected 3, got 2)
+2026-09-10 18:30:29,925 - INFO - Execution of parse_tranasaction took 0.0022108000703155994 seconds.
+2026-09-10 18:30:29,926 - INFO - Data written to data\summary.json
+2026-09-10 18:41:32,615 - INFO - initializing Phonepe Expense Tracker....
+2026-09-10 18:41:32,617 - ERROR - Skipped  8 transaction due to error: not enough values to unpack (expected 3, got 2)
+2026-09-10 18:41:32,619 - INFO - Execution of parse_tranasaction took 0.002262100111693144 seconds.
+2026-09-10 18:41:32,620 - INFO - Data written to data\summary.json

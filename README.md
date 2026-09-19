@@ -95,32 +95,30 @@ npm install
 cd ..
 ```
 
-### 3. Build & Run Desktop App (1-Click)
+### 3. Run Desktop Application (1-Click)
 ```bash
-python build_desktop.py
+python main.py
+```
+or double-click:
+```bash
+build_scripts\run_app.bat
 ```
 
 ### 4. Package as Standalone Single Executable (.exe)
-To package into a single portable `.exe` file (~12.5 MB) that can be shared with anyone:
+To package into a single portable `.exe` file that can be shared with anyone without requiring Python or Node.js to be installed:
 ```bash
-python build_desktop.py --package
+python build_scripts/build_desktop.py --build
 ```
-The resulting executable will be saved in:
-`dist/PhonePeExpenseTracker.exe`
-
-### 5. Run in Development Mode (Live Hot Reloading)
+or double-click:
 ```bash
-# In Terminal 1 (Frontend):
-cd frontend
-npm run dev
-
-# In Terminal 2 (Desktop App):
-python build_desktop.py --dev
+build_scripts\build_exe.bat
 ```
+The resulting single standalone executable will be saved in:
+`dist/PhonePe_Expense_Tracker.exe`
 
-### 6. Run Original CLI Mode
+### 5. Run CLI Analytical Report
 ```bash
-python main.py
+python main.py --cli
 ```
 
 ---
